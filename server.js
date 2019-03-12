@@ -3,7 +3,6 @@ require('dotenv').config()
 const mongoose = require('mongoose')
 const { findOrCreateUser } = require('./controllers/userController.js')
 
-
 const typeDefs = require('./typeDefs')
 const resolvers = require('./resolvers')
 
@@ -23,7 +22,6 @@ const server = new ApolloServer({
             authToken = req.headers.authorization
 
             if (authToken) {
-
                 // find or create user
                 currentUser = await findOrCreateUser(authToken)
             }
