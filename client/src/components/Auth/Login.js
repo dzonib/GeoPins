@@ -4,41 +4,56 @@ import { GoogleLogin } from "react-google-login"
 import { GraphQLClient } from "graphql-request"
 
 import Context from "../../context"
+import { ME_QUERY } from "../../graphql/queries"
 
-// import Typography from "@material-ui/core/Typography";
+import Typography from "@material-ui/core/Typography"
 
-const ME_QUERY = `
-{
-	me {
-		_id
-    name
-    email
-    picture
-  }
-}
-`
 const Login = ({ classes }) => {
     const { dispatch } = useContext(Context)
 
     const onSuccess = async googleUser => {
-        // easy way to get token
-        const idToken = googleUser.getAuthResponse().id_token
+        try {
+            // easy way to get token
+            const idToken = googleUser.getAuthResponse().id_token
 
-        const client = new GraphQLClient("http://localhost:4000/graphql", {
-            headers: { authorization: idToken }
-        })
+            const client = new GraphQLClient("http://localhost:4000/graphql", {
+                headers: { authorization: idToken }
+            })
 
-        const data = await client.request(ME_QUERY)
-        // console.log({ data })
-        dispatch({type: "LOGIN_USER", payload: data.me})
+            const { me } = await client.request(ME_QUERY)
+
+            dispatch({ type: "LOGIN_USER", payload: me })
+
+            // will return true when google oath authenticate user
+            dispatch({ type: "IS_LOGGED_IN", payload: googleUser.isSignedIn() })
+        } catch (err) {
+            onFailure(err)
+        }
+    }
+
+    const onFailure = err => {
+        console.log("Error logging in", err)
     }
 
     return (
-        <GoogleLogin
-            clientId="298398267602-2kth3ldbn0c6lldigosbjg87mgo0tq51.apps.googleusercontent.com"
-            onSuccess={onSuccess}
-            isSignedIn={true}
-        />
+        <div className={classes.root}>
+            <Typography
+                component="h1"
+                variant="h3"
+                gutterBottom
+                noWrap
+                style={{ color: "rgb(66, 133, 244)" }}
+            >
+                Wellcome
+            </Typography>
+            <GoogleLogin
+                clientId="298398267602-2kth3ldbn0c6lldigosbjg87mgo0tq51.apps.googleusercontent.com"
+                onSuccess={onSuccess}
+                onFailure={onFailure}
+                isSignedIn={true}
+                theme="dark"
+            />
+        </div>
     )
 }
 
