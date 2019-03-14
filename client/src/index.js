@@ -17,7 +17,6 @@ const Root = () => {
   
   const [state, dispatch] = useReducer(reducer, initialState)
 
-  console.log(state)
 
   return (
     <Router>
